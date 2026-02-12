@@ -1,1 +1,1 @@
-# palantir-java-format-shadow
+# palantir-java-format-all-deps

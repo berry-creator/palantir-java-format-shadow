@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      palantir_version:
+        description: 'Release version (e.g. 2.84.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag exists
+        run: |
+          if ! git rev-parse "${{ github.event.inputs.palantir_version }}" >/dev/null 2>&1; then
+            echo "Tag does not exist!"
+            exit 1
+          fi
+          
+      - name: Check release exists
+        run: |
+          if gh release view ${{ github.event.inputs.palantir_version }} >/dev/null 2>&1; then
+            echo "Release already exists!"
+            exit 1
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Checkout to tag
+        run: |
+          git checkout ${{ github.event.inputs.palantir_version }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: zulu
+          java-version: 21
+
+      - name: Build palantir-java-format-all-deps-${{ github.event.inputs.palantir_version }}
+        run: |
+          ./mvnw clean package -DskipTests
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.palantir_version }}
+          files: target/palantir-java-format-all-deps-*.jar

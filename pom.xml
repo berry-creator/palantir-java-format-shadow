@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.berrycreator</groupId>
-    <artifactId>palantir-java-format-shadow</artifactId>
+    <artifactId>palantir-java-format-all-deps</artifactId>
     <version>2.84.0</version>
     <packaging>jar</packaging>
 
